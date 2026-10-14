@@ -23,46 +23,45 @@ message = st.text_area(
 )
 
 if st.button("Detect Message", type="primary"):
-    if not message.strip():
-        st.warning("Please enter an SMS message.")
+  
+if not message.strip():
+    st.warning("Please enter an SMS message.")
+else:
+    import re
+
+    suspicious_patterns = [
+        r"\bwon\b",
+        r"\bprize\b",
+        r"\bclaim\b",
+        r"\bcongratulations\b",
+        r"\bfree reward\b",
+        r"\burgent\b",
+        r"\bclick here\b",
+        r"\bverify your account\b",
+        r"\baccount suspended\b",
+        r"\bprize money\b"
+    ]
+
+    prediction = model.predict([message])[0]
+
+    if any(re.search(p, message, re.IGNORECASE)
+           for p in suspicious_patterns):
+        prediction = "spam"
+
+    st.subheader("Prediction Result")
+
+    if prediction == "spam":
+        st.error("⚠️ SPAM / POSSIBLE FRAUD")
+        st.write(
+            "This message resembles spam. Avoid clicking "
+            "suspicious links or sharing personal details."
+        )
     else:
-     
-import re
-
-suspicious_patterns = [
-    r"\bwon\b",
-    r"\bprize\b",
-    r"\bclaim\b",
-    r"\bcongratulations\b",
-    r"\bfree reward\b",
-    r"\burgent\b",
-    r"\bclick here\b",
-    r"\bverify your account\b",
-    r"\baccount suspended\b",
-    r"\bprize money\b"
-]
-
-prediction = model.predict([message])[0]
-
-if any(re.search(p, message, re.IGNORECASE)
-       for p in suspicious_patterns):
-    prediction = "spam"
-
-
-        st.subheader("Prediction Result")
-
-        if prediction == "spam":
-            st.error("⚠️ SPAM / POSSIBLE FRAUD")
-            st.write(
-                "This message resembles spam. Avoid clicking "
-                "suspicious links or sharing personal details."
-            )
-        else:
-            st.success("✅ LEGITIMATE / NORMAL")
-            st.write(
-                "The model classified this message as normal. "
-                "This does not guarantee that it is safe."
-            )
+        st.success("✅ LEGITIMATE / NORMAL")
+        st.write(
+            "The model classified this message as normal. "
+            "This does not guarantee that it is safe."
+        )
 
 st.divider()
 st.caption(
